@@ -6,14 +6,14 @@
 #define BITS_5 0x1F
 #define GROUPBITS 5
 
-void print64bits(unsigned long b) {
+void print40bits(unsigned long b) {
     int i;
-    int s = 8 * (sizeof b) - 1;
+    int s = 39;
 
-    for (i = s; i >= 0; i--)
-    {
+    for (i = s; i >= 0; i--) {
         unsigned long mask = 1L << i;
         putchar(b & mask ? '1' : '0');
+        if (i%5==0) putchar(' ');
     }
     putchar('\n');
 }
@@ -21,8 +21,8 @@ void print64bits(unsigned long b) {
 void print_buffer(unsigned long buffer) {
     char base32[33] = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','2','3','4','5','6','7','='};
 
-    for (int j=0;j<8;j++) {
-        int amount_of_shifts = (7 - j) * GROUPBITS;
+    for (int i=0;i<8;i++) {
+        int amount_of_shifts = (7-i) * GROUPBITS;
         int temp = (buffer >> amount_of_shifts) & BITS_5;
         printf("%c", base32[temp]);
     }
@@ -39,7 +39,7 @@ void encode_base32(unsigned const char *input, size_t length) {
     for (size_t i=0; i < length; i++) {
         // temp save to unsigned long because we can bitshift this > 32
         unsigned long to_mask_with = *input++;
-        buffer |= to_mask_with << buffer_index * 8;
+        buffer |= to_mask_with << (32 - (buffer_index * 8));
 
         if (buffer_index++ == BUFFER_SIZE) {
             print_buffer(buffer);
@@ -49,6 +49,7 @@ void encode_base32(unsigned const char *input, size_t length) {
     }
 
     if (buffer) {
+        print40bits(buffer);
         print_buffer(buffer);
     }
 
@@ -56,7 +57,7 @@ void encode_base32(unsigned const char *input, size_t length) {
 }
 
 int main() {
-    unsigned const char *data = (unsigned char*)"aaaaa";
+    unsigned const char *data = (unsigned char*)"abcde";
 
     printf("Converting %s\n", data);
     encode_base32(data, 5);
