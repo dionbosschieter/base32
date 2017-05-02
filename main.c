@@ -41,7 +41,7 @@ void encode_base32(unsigned const char *input, size_t length) {
         unsigned long to_mask_with = *input++;
         buffer |= to_mask_with << (32 - (buffer_index * 8));
 
-        if (buffer_index++ == BUFFER_SIZE) {
+        if (++buffer_index == BUFFER_SIZE) {
             print_buffer(buffer);
             buffer_index = 0; // start over
             buffer = 0L;
@@ -57,8 +57,8 @@ void encode_base32(unsigned const char *input, size_t length) {
 }
 
 int main() {
-    unsigned const char *data = (unsigned char*)"abcde";
+    unsigned const char *data = (unsigned char*)"abcdeabcde";
 
     printf("Converting %s\n", data);
-    encode_base32(data, 5);
+    encode_base32(data, 10);
 }
