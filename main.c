@@ -39,7 +39,7 @@ void print_buffer(unsigned long buffer, size_t length) {
 }
 
 void encode_base32(unsigned const char *input, size_t length) {
-    printf("Start:\n");
+    printf("Start\n");
 
     unsigned long buffer = 0L;
 
