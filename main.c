@@ -6,6 +6,9 @@
 #define BITS_5 0x1F
 #define GROUPBITS 5
 
+// divide round up macro
+#define DIVIDE_CEIL(a,b) ((a / b) + (a % b > 0 ? 1 : 0))
+
 void print40bits(unsigned long b) {
     int i;
     int s = 39;
@@ -18,13 +21,20 @@ void print40bits(unsigned long b) {
     putchar('\n');
 }
 
-void print_buffer(unsigned long buffer) {
+void print_buffer(unsigned long buffer, size_t length) {
     char base32[33] = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','2','3','4','5','6','7','='};
 
-    for (int i=0;i<8;i++) {
+    for (int i=0; i<length; i++) {
         int amount_of_shifts = (7-i) * GROUPBITS;
         int temp = (buffer >> amount_of_shifts) & BITS_5;
-        printf("%c", base32[temp]);
+        putchar(base32[temp]);
+    }
+
+    // needs padding
+    if (length % 8 != 0) {
+        for (int i = length % 8; i<8; i++) {
+            putchar('=');
+        }
     }
 }
 
@@ -42,23 +52,22 @@ void encode_base32(unsigned const char *input, size_t length) {
         buffer |= to_mask_with << (32 - (buffer_index * 8));
 
         if (++buffer_index == BUFFER_SIZE) {
-            print_buffer(buffer);
+            print_buffer(buffer, 8);
             buffer_index = 0; // start over
             buffer = 0L;
         }
     }
 
     if (buffer) {
-        print40bits(buffer);
-        print_buffer(buffer);
+        print_buffer(buffer, DIVIDE_CEIL((length % 5) * 8, 5));
     }
 
     printf("\nEnd\n");
 }
 
 int main() {
-    unsigned const char *data = (unsigned char*)"abcdeabcde";
+    unsigned const char *data = (unsigned char*)"abcdeabc";
 
     printf("Converting %s\n", data);
-    encode_base32(data, 10);
+    encode_base32(data, 8);
 }
