@@ -75,12 +75,14 @@ void print_buffer_as_char(unsigned long buffer, size_t length) {
 
 void decode_base32(const char *input, size_t length) {
     unsigned long buffer = 0L;
+    int buffer_index = 0;
     for (int i=0;i<length;i++) {
         if (input[i] == '=') {
             break;
         }
         unsigned long matched;
 
+        // match char to the base32 array
         for (int j=0;j<32;j++) {
             if (base32[j] == input[i]) {
                 matched = j;
@@ -88,12 +90,16 @@ void decode_base32(const char *input, size_t length) {
         }
 
         buffer |= matched << (35 - (i*5));
+        buffer_index++;
 
-        if (i != 0 && i % 8 == 0) {
+        if (i != 0 && (i+1) % 8 == 0) {
             print_buffer_as_char(buffer, 5);
             buffer = 0L;
+            buffer_index = 0;
         }
     }
+
+    print_buffer_as_char(buffer, 8);
 }
 
 int main() {
