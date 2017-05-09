@@ -1,8 +1,8 @@
 # base32
 ```bash
 $ gcc -Wall main.c && ./a.out
-Converting abcdeabc
-Start
+Encoding abcdeabc
 MFRGGZDFMFRGG===
-End
+Decoding MFRGGZDFMFRGG===
+abcdeabc
 ```
