@@ -39,9 +39,7 @@ void print_buffer(unsigned long buffer, size_t length) {
     }
 }
 
-void encode_base32(unsigned const char *input, size_t length) {
-    printf("Start\n");
-
+void encode_base32(const char *input, size_t length) {
     unsigned long buffer = 0L;
 
     // buffer till we have 40 bits
@@ -62,8 +60,7 @@ void encode_base32(unsigned const char *input, size_t length) {
     if (buffer) {
         print_buffer(buffer, DIVIDE_CEIL((length % 5) * 8, 5));
     }
-
-    printf("\nEnd\n");
+    putchar('\n');
 }
 
 
@@ -76,6 +73,7 @@ void print_buffer_as_char(unsigned long buffer, size_t length) {
 void decode_base32(const char *input, size_t length) {
     unsigned long buffer = 0L;
     int buffer_index = 0;
+
     for (int i=0;i<length;i++) {
         if (input[i] == '=') {
             break;
@@ -88,26 +86,25 @@ void decode_base32(const char *input, size_t length) {
                 matched = j;
             }
         }
+        buffer |= matched << (35 - (buffer_index * 5));
 
-        buffer |= matched << (35 - (i*5));
-        buffer_index++;
-
-        if (i != 0 && (i+1) % 8 == 0) {
+        if (++buffer_index == 8) {
             print_buffer_as_char(buffer, 5);
             buffer = 0L;
             buffer_index = 0;
         }
     }
 
-    print_buffer_as_char(buffer, 8);
+    print_buffer_as_char(buffer, DIVIDE_CEIL(buffer_index * 5, 8));
+    putchar('\n');
 }
 
 int main() {
-    unsigned const char *to_encode = (unsigned char*)"abcdeabc";
+    const char *to_encode = (char*)"abcdeabc";
     const char *to_decode = (char*)"MFRGGZDFMFRGG===";
 
     printf("Encoding %s\n", to_encode);
-    encode_base32(to_encode, 8);
+    encode_base32(to_encode, strlen(to_encode));
     printf("Decoding %s\n", to_decode);
     decode_base32(to_decode, strlen(to_decode));
 }
