@@ -57,7 +57,7 @@ void encode_base32(const char *input, size_t length) {
         }
     }
 
-    if (buffer) {
+    if (buffer_index > 0) {
         print_buffer(buffer, DIVIDE_CEIL((length % 5) * 8, 5));
     }
     putchar('\n');
@@ -95,7 +95,9 @@ void decode_base32(const char *input, size_t length) {
         }
     }
 
-    print_buffer_as_char(buffer, DIVIDE_CEIL(buffer_index * 5, 8));
+    if (buffer_index > 0) {
+        print_buffer_as_char(buffer, DIVIDE_CEIL(buffer_index * 5, 8));
+    }
     putchar('\n');
 }
 
