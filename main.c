@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 
 #define BUFFER_SIZE 5
 #define BITS_5 0x1F
@@ -8,6 +9,8 @@
 
 // divide round up macro
 #define DIVIDE_CEIL(a,b) ((a / b) + (a % b > 0 ? 1 : 0))
+
+char base32[32] = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','2','3','4','5','6','7'};
 
 void print40bits(unsigned long b) {
     int i;
@@ -22,8 +25,6 @@ void print40bits(unsigned long b) {
 }
 
 void print_buffer(unsigned long buffer, size_t length) {
-    char base32[33] = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','2','3','4','5','6','7','='};
-
     for (int i=0; i<length; i++) {
         int amount_of_shifts = (7-i) * GROUPBITS;
         int temp = (buffer >> amount_of_shifts) & BITS_5;
@@ -65,9 +66,42 @@ void encode_base32(unsigned const char *input, size_t length) {
     printf("\nEnd\n");
 }
 
-int main() {
-    unsigned const char *data = (unsigned char*)"abcdeabc";
 
-    printf("Converting %s\n", data);
-    encode_base32(data, 8);
+void print_buffer_as_char(unsigned long buffer, size_t length) {
+    for (int i=0;i<length;i++) {
+        putchar(buffer >> (32 - (i*8)));
+    }
+}
+
+void decode_base32(const char *input, size_t length) {
+    unsigned long buffer = 0L;
+    for (int i=0;i<length;i++) {
+        if (input[i] == '=') {
+            break;
+        }
+        unsigned long matched;
+
+        for (int j=0;j<32;j++) {
+            if (base32[j] == input[i]) {
+                matched = j;
+            }
+        }
+
+        buffer |= matched << (35 - (i*5));
+
+        if (i != 0 && i % 8 == 0) {
+            print_buffer_as_char(buffer, 5);
+            buffer = 0L;
+        }
+    }
+}
+
+int main() {
+    unsigned const char *to_encode = (unsigned char*)"abcdeabc";
+    const char *to_decode = (char*)"MFRGGZDFMFRGG===";
+
+    printf("Encoding %s\n", to_encode);
+    encode_base32(to_encode, 8);
+    printf("Decoding %s\n", to_decode);
+    decode_base32(to_decode, strlen(to_decode));
 }
